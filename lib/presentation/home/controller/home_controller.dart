@@ -1,8 +1,12 @@
+import 'dart:async';
+
 import 'package:configuration/data/data_source/local/sessions_pref.dart';
 import 'package:configuration/di/di_module.dart';
 import 'package:configuration/utility/color_const.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_architecture/data/grocery/data_source/local/item_grocery_local.dart';
+import 'package:flutter_architecture/data/grocery/data_source/local/product_data_source.dart';
 import 'package:flutter_architecture/data/grocery/model/response/category_response/category_reponse_model.dart';
 import 'package:flutter_architecture/data/grocery/model/response/product_reponse/item_grocery.dart';
 import 'package:flutter_architecture/data/grocery/repositories/user_repo.dart';
@@ -15,14 +19,19 @@ class HomeController extends GetxController {
   final _getDataProduct = GetDataProductUseCase(getIt<UserRepoImpl>());
   final _loginGrocery = LoginGrocery(getIt<UserRepoImpl>());
   final _getListCategory = GetListCategory(getIt<UserRepoImpl>());
+  final _getCartAndFavorite = getIt<ProductDataSource>();
   String token = '';
   bool isLoading = false;
   List<ItemGrocery> listItem = [];
+  List<ItemGroceryLocal> listItemCart = [];
+  List<ItemGroceryLocal> listItemFavorite = [];
   List<CategoryReponseModel> listCategory = [];
+
 
   @override
   void onInit() async {
     loading(true);
+    getListCart();
     super.onInit();
     await getToken();
     await getProduct();
@@ -34,6 +43,45 @@ class HomeController extends GetxController {
   {
     isLoading = value;
     update();
+  }
+  Future<void> getListCart() async
+  {
+    final data = await _getCartAndFavorite.getData();
+    if(data.toString().compareTo('null')==0)
+      {
+        listItemCart =[];
+        update();
+      }
+    else
+      {
+        listItemCart = data!;
+        update();
+      }
+    final data1 = await _getCartAndFavorite.getData();
+    if(data1.toString().compareTo('null')==0)
+    {
+      listItemFavorite =[];
+      update();
+    }
+    else
+    {
+      listItemFavorite = data1!;
+      update();
+    }
+
+
+  }
+  Future<void> addToCart(ItemGroceryLocal itemGrocery)async
+  {
+    listItemCart.add(itemGrocery);
+    update();
+    await _getCartAndFavorite.saveDataCart(listItemCart);
+  }
+  Future<void> addToFavorite(ItemGroceryLocal itemGroceryLocal) async
+  {
+    listItemFavorite.add(itemGroceryLocal);
+    update();
+    await _getCartAndFavorite.saveDataFavorite(listItemFavorite);
   }
 
   Future<void> getToken() async {

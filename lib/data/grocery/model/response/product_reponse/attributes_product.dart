@@ -2,7 +2,7 @@ import 'package:equatable/equatable.dart';
 import 'package:json_annotation/json_annotation.dart';
 part 'attributes_product.g.dart';
 @JsonSerializable()
-class AttributesProduct extends Equatable {
+class AttributesProduct extends Equatable  {
   @JsonKey(name: 'id')
   int? id;
   @JsonKey(name: 'name')

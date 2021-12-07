@@ -1,6 +1,8 @@
 import 'dart:math';
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:configuration/utility/color_const.dart';
+import 'package:configuration/utility/string_const.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_architecture/presentation/home/controller/home_controller.dart';
 import 'package:flutter_architecture/style/font/font_constan.dart';
@@ -41,29 +43,35 @@ class MyCartScreen extends StatelessWidget {
             SizedBox(
               height: 30.h,
             ),
-            Expanded(
+           controller.listItemCart.isEmpty? Image.asset('assets/images/image.png') :Expanded(
               child: Stack(children: [
                 ListView.builder(
-                    itemCount: 5,
+                    itemCount: controller.listItemCart.length,
                     itemBuilder: (context, index) {
+                      final data = controller.listItemCart[index];
                       return Container(
                         margin: EdgeInsets.symmetric(
                             horizontal: 16.w, vertical: 8.h),
                         child: Column(
                           children: [
                             Row(
+                              mainAxisAlignment: MainAxisAlignment.start,
+
                               children: [
-                                Image.asset('assets/images/apple.png'),
+                               CachedNetworkImage(imageUrl: '${StringConstant.link}${data.image}',
+                               width: 0.17.sw,
+                               height: 0.077.sh,),
                                 SizedBox(
                                   width: 16.w,
                                 ),
                                 Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Row(
                                       children: [
                                         RichText(
                                           text: TextSpan(
-                                              text: 'Apple\n',
+                                              text: '${data.descriptions!.first.name}\n',
                                               style: TextStyle(
                                                   fontSize: 18.sp,
                                                   fontFamily:
@@ -82,12 +90,15 @@ class MyCartScreen extends StatelessWidget {
                                               ]),
                                         ),
                                         SizedBox(
-                                          width: 0.35.sw,
+                                          width: 0.1.sw,
                                         ),
-                                        Icon(
-                                          Icons.close,
-                                          size: 24.sp,
-                                          color: Color(0xffB3B3B3),
+                                        GestureDetector(
+                                          onTap:(){} ,
+                                          child: Icon(
+                                            Icons.close,
+                                            size: 24.sp,
+                                            color: Color(0xffB3B3B3),
+                                          ),
                                         )
                                       ],
                                     ),
@@ -97,6 +108,7 @@ class MyCartScreen extends StatelessWidget {
                                     Row(
                                       mainAxisAlignment:
                                           MainAxisAlignment.start,
+
                                       children: [
                                         TextButton(
                                             style: TextButton.styleFrom(
@@ -148,7 +160,7 @@ class MyCartScreen extends StatelessWidget {
                                           width: 0.15.sw,
                                         ),
                                         Text(
-                                          'đ 4.99',
+                                          'đ ${data.price}',
                                           style: TextStyle(
                                               fontSize: 16.sp,
                                               fontFamily:
