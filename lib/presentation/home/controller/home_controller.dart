@@ -83,7 +83,12 @@ class HomeController extends GetxController {
     update();
     await _getCartAndFavorite.saveDataFavorite(listItemFavorite);
   }
-
+  Future<void> removeCart(int index)async
+  {
+    listItemCart.removeAt(index);
+    update();
+    await _getCartAndFavorite.saveDataCart(listItemCart);
+  }
   Future<void> getToken() async {
     final data = await _loginGrocery.loginGrocery('admin', 'admin123');
     token = data!.accessToken!;
