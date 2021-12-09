@@ -1,6 +1,7 @@
 import 'package:configuration/utility/color_const.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_architecture/presentation/home/controller/home_controller.dart';
+import 'package:flutter_architecture/presentation/login/login_screen.dart';
 import 'package:flutter_architecture/style/font/font_constan.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
@@ -16,7 +17,55 @@ class AccountScreen extends StatelessWidget {
           backgroundColor: Colors.white,
           body: SafeArea(
             child: Container(
-              child: Column(
+              child: controller.tokenUser.compareTo('')==0?Center(
+                child: Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 16.w),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      TextButton(
+                        style: TextButton.styleFrom(
+                            backgroundColor: ColorConstant.activeColor,
+                            maximumSize: Size(1.sw, 58.h),
+                            minimumSize: Size(1.sw, 58.h),
+                            shape: RoundedRectangleBorder(
+                                borderRadius:
+                                BorderRadius.all(Radius.circular(16.r)))),
+                        onPressed: () {
+                          Get.to(()=>LoginScreen());},
+                        child: Text(
+                          'Login',
+                          style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 16.sp,
+                              fontFamily: FontConstant.gilroy_semibold),
+                        ),
+                      ),
+                      SizedBox(height: 16.h,),
+                      Text('Or',style: TextStyle(fontFamily: FontConstant.gilroy_medium,fontSize: 16.sp,color: ColorConstant.activeColor),),
+                      SizedBox(height: 16.h,),
+                      TextButton(
+                        style: TextButton.styleFrom(
+                            backgroundColor: Color(0xffE5E5E5),
+                            maximumSize: Size(1.sw, 58.h),
+                            minimumSize: Size(1.sw, 58.h),
+                            shape: RoundedRectangleBorder(
+                                borderRadius:
+                                BorderRadius.all(Radius.circular(16.r)))),
+                        onPressed: () {},
+                        child: Text(
+                          'Register',
+                          style: TextStyle(
+                              color: ColorConstant.activeColor,
+                              fontSize: 16.sp,
+                              fontFamily: FontConstant.gilroy_semibold),
+                        ),
+                      ),
+
+                    ],
+                  ),
+                ),
+              ):Column(
                 children: [
                   SizedBox(
                     height: 24.h,
@@ -90,7 +139,9 @@ class AccountScreen extends StatelessWidget {
                         borderRadius: BorderRadius.all(Radius.circular(16.r))
                       )
                     ),
-                    onPressed: (){}, child: Row(
+                    onPressed: (){
+                      controller.logOut();
+                    }, child: Row(
                       children: [
                         Icon(Icons.logout,color: ColorConstant.activeColor,size: 20.sp,),
                         Spacer(),

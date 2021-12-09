@@ -3,7 +3,12 @@ import 'dart:async';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:configuration/utility/color_const.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_architecture/data/grocery/data_source/local/attributes_product_local.dart';
+import 'package:flutter_architecture/data/grocery/data_source/local/description_model_local.dart';
+import 'package:flutter_architecture/data/grocery/data_source/local/image_model_local.dart';
+import 'package:flutter_architecture/data/grocery/data_source/local/item_grocery_local.dart';
 import 'package:flutter_architecture/data/grocery/model/response/product_reponse/item_grocery.dart';
+import 'package:flutter_architecture/presentation/home/controller/home_controller.dart';
 import 'package:flutter_architecture/style/font/font_constan.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -21,6 +26,7 @@ class DetailProduct extends StatefulWidget {
 
 class _DetailProductState extends State<DetailProduct> {
   int _currentPage = 0;
+  final scrollController = ScrollController();
   final controllerPageView = PageController(
     keepPage: false,
     initialPage: 0,
@@ -28,13 +34,14 @@ class _DetailProductState extends State<DetailProduct> {
 
   @override
   void initState() {
+    print(widget.productData.images!.length);
     super.initState();
     nextView();
   }
 
   Future<void> nextView() async {
     Timer.periodic(Duration(seconds: 2), (Timer timer) {
-      if (_currentPage < widget.productData.images!.length) {
+      if (_currentPage < widget.productData.images!.length-1) {
         _currentPage++;
       } else {
         _currentPage = 0;
@@ -106,7 +113,7 @@ class _DetailProductState extends State<DetailProduct> {
                       // color: Colors.red.withOpacity(.4),
                       child: SmoothPageIndicator(
                         controller: controllerPageView,
-                        count: 3,
+                        count: widget.productData.images!.length,
                         effect: CustomizableEffect(
                           activeDotDecoration: DotDecoration(
                             width: 16,
@@ -151,10 +158,91 @@ class _DetailProductState extends State<DetailProduct> {
                         fontFamily: FontConstant.gilroy_bold),
                   ),
                   Spacer(),
-                  Icon(
-                    Icons.favorite_border_outlined,
-                    color: Color(0xff7C7C7C),
-                    size: 24.sp,
+                  GetBuilder<HomeController>(
+                    builder: (controller) {
+                      return GestureDetector(
+                        onTap: () async{
+                          if(controller.listItemFavorite.where((element) => element.id.toString().contains(widget.productData.id.toString())).toList().isEmpty)
+                            {
+                              List<ImageModelLocal> imageLocal =[];
+                              List<DesCriptionModelLocal> des =[];
+                              List<AttributesProductLocal> attribute =[];
+                              for(int i=0;i<widget.productData.images!.length;i++)
+                              {
+                                imageLocal.add(ImageModelLocal(image: widget.productData.images![i].image,
+                                    id: widget.productData.images![i].id,productId: widget.productData.images![i].id));
+                              }
+                              if(widget.productData.attributes!.isNotEmpty)
+                              {
+                                for(int i= 0;i<widget.productData.attributes!.length;i++)
+                                {
+                                  var dataAtt = widget.productData.attributes![i];
+                                  attribute.add(AttributesProductLocal(
+                                      productId: dataAtt.productId,
+                                      id: dataAtt.id,
+                                      name: dataAtt.name,
+                                      addPrice: dataAtt.addPrice,
+                                      attributeGroupId: dataAtt.attributeGroupId,
+                                      sort: dataAtt.sort,
+                                      status: dataAtt.status
+                                  ));
+                                }
+                              }
+                              for(int i=0;i<widget.productData.descriptions!.length;i++)
+                              {
+                                var desc = widget.productData.descriptions![i];
+                                des.add(DesCriptionModelLocal(
+                                    name: desc.name,
+                                    productId: desc.productId,
+                                    content: desc.content,
+                                    description: desc.description,
+                                    keyword: desc.keyword,
+                                    lang: desc.lang
+                                ));
+                              }
+                              await controller.addToFavorite(ItemGroceryLocal(
+                                  status: widget.productData.status,
+                                  sort: widget.productData.sort,
+                                  id: widget.productData.id,
+                                  image: widget.productData.image,
+                                  width: widget.productData.width,
+                                  height: widget.productData.height,
+                                  cost: widget.productData.cost,
+                                  alias: widget.productData.alias,
+                                  attributes: attribute,
+                                  brandId: widget.productData.brandId,
+                                  descriptions: des,
+                                  images: imageLocal,
+                                  kind: widget.productData.kind,
+                                  length: widget.productData.length,
+                                  minimum: widget.productData.minimum,
+                                  price: widget.productData.price,
+                                  property: widget.productData.property,
+                                  sku: widget.productData.sku,
+                                  sold: widget.productData.sold,
+                                  stock: widget.productData.stock,
+                                  supplierId: widget.productData.supplierId,
+                                  taxId: widget.productData.taxId,
+                                  view: widget.productData.view,
+                                  weight: widget.productData.weight
+                              ));
+                              ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                                content: Text("Item add to favorite"),
+                              ));
+                            }
+                          else
+                          {
+                            await controller.removeFavorite(widget.productData.id!);
+                          }
+
+                        },
+                        child: Icon(
+                          controller.listItemFavorite.where((element) => element.id.toString().contains(widget.productData.id.toString())).toList().isEmpty? Icons.favorite_border_outlined:Icons.favorite,
+                          color: controller.listItemFavorite.where((element) => element.id.toString().contains(widget.productData.id.toString())).toList().isEmpty?Color(0xff7C7C7C):Colors.red,
+                          size: 32.sp,
+                        ),
+                      );
+                    }
                   )
                 ],
               ),
@@ -175,46 +263,9 @@ class _DetailProductState extends State<DetailProduct> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: [
-                  TextButton(
-                      style: TextButton.styleFrom(
-                          minimumSize: Size(45.w, 45.h),
-                          maximumSize: Size(45.w, 45.h),
-                          shape: RoundedRectangleBorder(
-                              borderRadius:
-                                  BorderRadius.all(Radius.circular(18.r)),
-                              side: BorderSide(
-                                  color: ColorConstant.stroke1.withOpacity(0.2),
-                                  width: 1))),
-                      onPressed: () {},
-                      child: Icon(
-                        Icons.remove,
-                        color: ColorConstant.activeColor,
-                      )),
-                  Text(
-                    '  1  ',
-                    style: TextStyle(
-                        fontSize: 16.sp,
-                        fontFamily: FontConstant.gilroy_bold,
-                        color: ColorConstant.textColor),
-                  ),
-                  TextButton(
-                      style: TextButton.styleFrom(
-                          minimumSize: Size(45.w, 45.h),
-                          maximumSize: Size(45.w, 45.h),
-                          shape: RoundedRectangleBorder(
-                              borderRadius:
-                                  BorderRadius.all(Radius.circular(18.r)),
-                              side: BorderSide(
-                                  color: ColorConstant.stroke1.withOpacity(0.2),
-                                  width: 1))),
-                      onPressed: () {},
-                      child: Icon(
-                        Icons.add,
-                        color: ColorConstant.activeColor,
-                      )),
                   Spacer(),
                   Text(
-                    'đ 4.99',
+                    'đ ${widget.productData.price}',
                     style: TextStyle(
                         fontSize: 16.sp,
                         fontFamily: FontConstant.gilroy_bold,

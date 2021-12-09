@@ -1,5 +1,7 @@
 import 'package:flutter_architecture/di/module/api_module.dart';
 import 'package:flutter_architecture/di/module/components_module.dart';
+import 'package:flutter_architecture/di/module/grocery_api_module.dart';
+import 'package:flutter_architecture/di/module/grocery_repo_module.dart';
 import 'package:flutter_architecture/di/module/product_datasoure_module.dart';
 import 'package:flutter_architecture/di/module/repo_module.dart';
 
@@ -9,5 +11,7 @@ class Injection {
     await ApiModule().provides();
     await RepoModule().provides();
     await ProductDatasourceModule().provides();
+    await GroceryApiModule().provides();
+    await GroceryRepoModule().provides();
   }
 }

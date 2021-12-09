@@ -9,9 +9,16 @@ class SessionPref {
     preferencesManager.putString(keyAccessToken, accessToken);
     preferencesManager.putString(keyRefreshToken, refreshToken);
   }
-
+  static void saveSessionTokenUser(
+      {required String accessToken, required String refreshToken}) {
+    var preferencesManager = getIt.get<SharedPreferencesManager>();
+    preferencesManager.putString(keyAccessTokenUser, accessToken);
+    preferencesManager.putString(keyRefreshTokenUser, refreshToken);
+  }
   static String? getAccessToken() =>
       getIt.get<SharedPreferencesManager>().getString(keyAccessToken);
+  static String? getAccessTokenUser() =>
+      getIt.get<SharedPreferencesManager>().getString(keyAccessTokenUser);
 
   static String? getRefreshToken() =>
       getIt.get<SharedPreferencesManager>().getString(keyRefreshToken);
